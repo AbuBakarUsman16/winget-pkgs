@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Small Caps Studio</title>
+<meta name="description" content="Free small caps text generator. Convert text to ꜱᴍᴀʟʟ ᴄᴀᴘꜱ, superscript, bold, script and 15+ Unicode styles. Copy and paste into Instagram, Discord, TikTok and more.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one centered work column — input on top, live style list below, then a short guide + FAQ */
+:root{
+  --bg:#eef1f6; --surface:#ffffff; --ink:#141a2b; --muted:#5b6478; --line:#d6dbe6;
+  --accent:#2f4bff; --accent-ink:#ffffff; --accent-soft:#e3e8ff; --ok:#13804a;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1320; --surface:#171c2c; --ink:#e7eaf3; --muted:#9aa3b8; --line:#2a3148;
+  --accent:#7d90ff; --accent-ink:#0f1320; --accent-soft:#232c52; --ok:#4fd18b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1320; --surface:#171c2c; --ink:#e7eaf3; --muted:#9aa3b8; --line:#2a3148;
+  --accent:#7d90ff; --accent-ink:#0f1320; --accent-soft:#232c52; --ok:#4fd18b; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;margin:0}
+.wrap{max-width:860px;margin:0 auto;padding-inline:16px;padding-block:28px 64px;display:flex;flex-direction:column;gap:36px}
+header{display:flex;flex-direction:column;gap:10px}
+.brand{font-family:var(--mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(34px,6vw,56px);line-height:1.02;margin:0;text-wrap:balance;letter-spacing:-.02em}
+h1 .sc{color:var(--accent);font-weight:700}
+.lede{color:var(--muted);max-width:60ch;margin:0}
+
+.editor{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.editor label{display:block;font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:14px 18px 0}
+textarea{display:block;width:100%;min-height:120px;resize:vertical;border:0;background:transparent;color:var(--ink);font:500 20px/1.45 var(--body);padding:8px 18px 14px;outline:none}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;border-top:1px solid var(--line);padding:10px 18px;font-size:14px;color:var(--muted)}
+.bar .count{font-family:var(--mono);font-variant-numeric:tabular-nums;margin-right:auto}
+.bar input{accent-color:var(--accent)}
+.bar label.opt{display:flex;gap:6px;align-items:center;cursor:pointer;padding:0;font:inherit;text-transform:none;letter-spacing:0;color:var(--ink)}
+.btn{font:600 14px var(--body);border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);padding:6px 14px;cursor:pointer}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn:focus-visible,.copy:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.hero-out{display:flex;flex-direction:column;gap:12px;background:var(--accent);color:var(--accent-ink);border-radius:14px;padding:20px 20px 18px}
+.hero-out .tag{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.8}
+.hero-out .txt{font-size:clamp(22px,4vw,30px);line-height:1.35;word-break:break-word;min-height:1.35em}
+.hero-out .copy{align-self:flex-start;background:var(--accent-ink);color:var(--accent);border:0}
+
+.list{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.row{display:grid;grid-template-columns:150px minmax(0,1fr) auto;gap:16px;align-items:center;padding:14px 4px;border-bottom:1px solid var(--line)}
+.row .name{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.row .out{font-size:19px;word-break:break-word;min-width:0}
+.copy{font:600 13px var(--body);border-radius:999px;border:1px solid var(--accent);background:transparent;color:var(--accent);padding:6px 14px;cursor:pointer;white-space:nowrap;min-width:72px}
+.copy:hover{background:var(--accent);color:var(--accent-ink)}
+.copy.done{border-color:var(--ok);background:var(--ok);color:var(--accent-ink)}
+h2{font-family:var(--display);font-weight:700;font-size:26px;margin:0 0 12px;letter-spacing:-.01em;text-wrap:balance}
+h3{font-size:17px;margin:0 0 4px}
+section p{margin:0;max-width:65ch}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:6px}
+.step{border-top:2px solid var(--accent);padding-top:10px}
+.step b{font-family:var(--mono);font-size:12px;color:var(--accent);letter-spacing:.06em;display:block;margin-bottom:4px}
+.chart{overflow-x:auto;margin-top:8px}
+table{border-collapse:collapse;font-family:var(--mono);font-size:15px}
+td,th{border:1px solid var(--line);padding:6px 9px;text-align:center}
+th{color:var(--muted);font-weight:400;font-size:12px}
+td{font-family:var(--body);font-size:18px}
+details{border-bottom:1px solid var(--line);padding:12px 0}
+details:first-of-type{border-top:1px solid var(--line)}
+summary{cursor:pointer;font-weight:600}
+details p{margin-top:8px;color:var(--muted)}
+footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:999px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+@media (max-width:600px){
+  .row{grid-template-columns:minmax(0,1fr) auto;gap:6px 12px}
+  .row .name{grid-column:1/-1}
+  .steps{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="brand">ꜱᴍᴀʟʟ ᴄᴀᴘꜱ ꜱᴛᴜᴅɪᴏ · Unicode text generator</div>
+    <h1>Small caps generator <span class="sc">ᴛʜᴀᴛ ᴊᴜꜱᴛ ᴡᴏʀᴋꜱ</span></h1>
+    <p class="lede">Type or paste your text. It turns into ꜱᴍᴀʟʟ ᴄᴀᴘꜱ and 16 other Unicode styles instantly. Copy one and paste it into Instagram, TikTok, Discord, WhatsApp, X or anywhere else that accepts text.</p>
+  </header>
+
+  <main style="display:flex;flex-direction:column;gap:18px">
+    <div class="editor">
+      <label for="input">Your text</label>
+      <textarea id="input" spellcheck="false">Hello World, this is small caps 123</textarea>
+      <div class="bar">
+        <span class="count" id="count">0 characters</span>
+        <label class="opt" for="upper"><input type="checkbox" id="upper" checked> Convert capitals too</label>
+        <button class="btn" id="clear" type="button">Clear</button>
+      </div>
+    </div>
+
+    <div class="hero-out" aria-live="polite">
+      <span class="tag">Small caps</span>
+      <div class="txt" id="main-out"></div>
+      <button class="copy" id="main-copy" type="button">Copy small caps</button>
+    </div>
+
+    <div class="list" id="list"></div>
+  </main>
+
+  <section>
+    <h2>How to use it</h2>
+    <div class="steps">
+      <div class="step"><b>STEP 1</b>Type or paste text in the box above.</div>
+      <div class="step"><b>STEP 2</b>Pick the style you like. Every style updates as you type.</div>
+      <div class="step"><b>STEP 3</b>Press Copy, then paste it into your bio, caption, username or chat.</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Small caps alphabet</h2>
+    <p>Each letter is a separate Unicode character, so it keeps its look wherever you paste it. There is no small capital X in Unicode, so a normal x is used.</p>
+    <div class="chart"><table id="chart"></table></div>
+  </section>
+
+  <section>
+    <h2>Questions</h2>
+    <details open><summary>What is small caps text?</summary><p>Small caps are capital letters drawn at the height of lowercase letters, like ᴛʜɪꜱ. This tool uses Unicode characters that look like small capitals, so the effect survives copy and paste.</p></details>
+    <details><summary>Where can I use it?</summary><p>Instagram and TikTok bios, Discord names and messages, X posts, WhatsApp, YouTube comments, game nicknames and most other apps that accept Unicode.</p></details>
+    <details><summary>Why do some letters look different or show as boxes?</summary><p>A few platforms or old phones lack fonts for rare Unicode characters. Try another style if a letter shows as a box. Screen readers may also read these characters oddly, so avoid them for important information.</p></details>
+    <details><summary>Is it free? Is my text saved?</summary><p>It is free. Conversion runs in your browser; your text is never sent anywhere.</p></details>
+  </section>
+
+  <footer>Small Caps Studio · Runs entirely in your browser.</footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  const LOW = "abcdefghijklmnopqrstuvwxyz", UP = LOW.toUpperCase(), DIG = "0123456789";
+  const small = "ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘǫʀꜱᴛᴜᴠᴡxʏᴢ";
+  const sup = ["ᵃ","ᵇ","ᶜ","ᵈ","ᵉ","ᶠ","ᵍ","ʰ","ⁱ","ʲ","ᵏ","ˡ","ᵐ","ⁿ","ᵒ","ᵖ","q","ʳ","ˢ","ᵗ","ᵘ","ᵛ","ʷ","ˣ","ʸ","ᶻ"];
+  const supD = "⁰¹²³⁴⁵⁶⁷⁸⁹";
+  const sub = ["ₐ","b","c","d","ₑ","f","g","ₕ","ᵢ","ⱼ","ₖ","ₗ","ₘ","ₙ","ₒ","ₚ","q","ᵣ","ₛ","ₜ","ᵤ","ᵥ","w","ₓ","y","z"];
+  const subD = "₀₁₂₃₄₅₆₇₈₉";
+  const flip = {a:"ɐ",b:"q",c:"ɔ",d:"p",e:"ǝ",f:"ɟ",g:"ƃ",h:"ɥ",i:"ᴉ",j:"ɾ",k:"ʞ",l:"l",m:"ɯ",n:"u",o:"o",p:"d",q:"b",r:"ɹ",s:"s",t:"ʇ",u:"n",v:"ʌ",w:"ʍ",x:"x",y:"ʎ",z:"z",
+    A:"∀",B:"ᗺ",C:"Ɔ",D:"ᗡ",E:"Ǝ",F:"Ⅎ",G:"⅁",H:"H",I:"I",J:"ſ",K:"ʞ",L:"˥",M:"W",N:"N",O:"O",P:"Ԁ",Q:"Ό",R:"ᴚ",S:"S",T:"⊥",U:"∩",V:"Λ",W:"M",X:"X",Y:"⅄",Z:"Z",
+    "1":"Ɩ","2":"ᄅ","3":"Ɛ","4":"ㄣ","5":"ϛ","6":"9","7":"ㄥ","8":"8","9":"6","0":"0",".":"˙",",":"'","'":",","?":"¿","!":"¡","(":")",")":"(","[":"]","]":"[","{":"}","}":"{","<":">",">":"<","_":"‾","&":"⅋"};
+
+  // Mathematical alphanumeric block: [upperStart, lowerStart, digitStart, exceptions]
+  const math = (U, L, D, ex) => ch => {
+    if (ex && ex[ch]) return ex[ch];
+    let i = UP.indexOf(ch); if (i > -1 && U) return String.fromCodePoint(U + i);
+    i = LOW.indexOf(ch); if (i > -1 && L) return String.fromCodePoint(L + i);
+    i = DIG.indexOf(ch); if (i > -1 && D) return String.fromCodePoint(D + i);
+    return ch;
+  };
+  const table = (lo, up, dg) => ch => {
+    let i = LOW.indexOf(ch); if (i > -1 && lo) return lo[i];
+    i = UP.indexOf(ch); if (i > -1 && up) return up(i, ch);
+    i = DIG.indexOf(ch); if (i > -1 && dg) return dg[i];
+    return ch;
+  };
+  const per = fn => s => Array.from(s).map(fn).join("");
+  const comb = mark => s => Array.from(s).map(c => c === "\n" ? c : c + mark).join("");
+
+  const smallFn = upToo => per(table(Array.from(small), upToo ? i => Array.from(small)[i] : null));
+
+  const styles = [
+    ["Superscript", per(table(sup, i => sup[i], Array.from(supD)))],
+    ["Subscript", per(table(sub, i => sub[i], Array.from(subD)))],
+    ["Bold", per(math(0x1D400, 0x1D41A, 0x1D7CE))],
+    ["Italic", per(math(0x1D434, 0x1D44E, 0, {h:"ℎ"}))],
+    ["Bold italic", per(math(0x1D468, 0x1D482, 0))],
+    ["Sans bold", per(math(0x1D5D4, 0x1D5EE, 0x1D7EC))],
+    ["Script", per(math(0x1D49C, 0x1D4B6, 0, {B:"ℬ",E:"ℰ",F:"ℱ",H:"ℋ",I:"ℐ",L:"ℒ",M:"ℳ",R:"ℛ",e:"ℯ",g:"ℊ",o:"ℴ"}))],
+    ["Bold script", per(math(0x1D4D0, 0x1D4EA, 0))],
+    ["Fraktur", per(math(0x1D504, 0x1D51E, 0, {C:"ℭ",H:"ℌ",I:"ℑ",R:"ℜ",Z:"ℨ"}))],
+    ["Double-struck", per(math(0x1D538, 0x1D552, 0x1D7D8, {C:"ℂ",H:"ℍ",N:"ℕ",P:"ℙ",Q:"ℚ",R:"ℝ",Z:"ℤ"}))],
+    ["Monospace", per(math(0x1D670, 0x1D68A, 0x1D7F6))],
+    ["Circled", per(ch => ch === "0" ? "⓪" : math(0x24B6, 0x24D0, 0)(ch) !== ch ? math(0x24B6, 0x24D0, 0)(ch) : (DIG.indexOf(ch) > 0 ? String.fromCodePoint(0x2460 + +ch - 1) : ch))],
+    ["Squared", per(ch => { const i = UP.indexOf(ch.toUpperCase()); return i > -1 ? String.fromCodePoint(0x1F130 + i) : ch; })],
+    ["Fullwidth", per(ch => ch === " " ? "　" : (ch > " " && ch <= "~") ? String.fromCharCode(ch.charCodeAt(0) + 0xFEE0) : ch)],
+    ["Upside down", s => Array.from(s).reverse().map(c => flip[c] || c).join("")],
+    ["Strikethrough", comb("̶")],
+    ["Underline", comb("̲")]
+  ];
+
+  const $ = id => document.getElementById(id);
+  const input = $("input"), upper = $("upper"), list = $("list"), mainOut = $("main-out"), toast = $("toast");
+  const outs = styles.map(([name]) => {
+    const row = document.createElement("div"); row.className = "row";
+    row.innerHTML = '<span class="name"></span><span class="out"></span><button class="copy" type="button">Copy</button>';
+    row.querySelector(".name").textContent = name;
+    const out = row.querySelector(".out"), btn = row.querySelector(".copy");
+    btn.addEventListener("click", () => copy(out.textContent, btn, "Copy"));
+    list.appendChild(row);
+    return out;
+  });
+
+  let t;
+  function flash(msg){ toast.textContent = msg; toast.classList.add("show"); clearTimeout(t); t = setTimeout(() => toast.classList.remove("show"), 1600); }
+  function copy(text, btn, label){
+    const ok = () => { btn.textContent = "Copied"; btn.classList.add("done"); flash("Copied to clipboard");
+      setTimeout(() => { btn.textContent = label; btn.classList.remove("done"); }, 1400); };
+    const fallback = () => {
+      const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select();
+      let done = false; try { done = document.execCommand("copy"); } catch(e) {}
+      document.body.removeChild(ta);
+      done ? ok() : flash("Select the text and press Ctrl+C to copy");
+    };
+    if (!text) { flash("Type some text first"); return; }
+    try { navigator.clipboard.writeText(text).then(ok, fallback); } catch(e) { fallback(); }
+  }
+
+  function render(){
+    const s = input.value;
+    const n = Array.from(s).length;
+    $("count").textContent = n + (n === 1 ? " character" : " characters");
+    mainOut.textContent = smallFn(upper.checked)(s);
+    styles.forEach(([, fn], i) => { outs[i].textContent = fn(s); });
+  }
+  input.addEventListener("input", render);
+  upper.addEventListener("change", render);
+  $("clear").addEventListener("click", () => { input.value = ""; render(); input.focus(); });
+  $("main-copy").addEventListener("click", e => copy(mainOut.textContent, e.currentTarget, "Copy small caps"));
+
+  // Alphabet chart
+  const chart = $("chart"), sm = Array.from(small);
+  for (const half of [0, 13]) {
+    const r1 = document.createElement("tr"), r2 = document.createElement("tr");
+    for (let i = half; i < half + 13; i++) {
+      const th = document.createElement("th"); th.textContent = LOW[i]; r1.appendChild(th);
+      const td = document.createElement("td"); td.textContent = sm[i]; r2.appendChild(td);
+    }
+    chart.append(r1, r2);
+  }
+  render();
+})();
+</script>
+</body>
+</html>
