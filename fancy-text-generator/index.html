@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Free fancy text generator: convert text into 60+ Unicode font styles and decorated names for Instagram, Free Fire, PUBG and WhatsApp.">
+<title>Fancy Text Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+Math&family=Noto+Sans+Symbols+2&display=swap">
+<style>
+/* Layout: specimen sheet. Sticky input "press" on top, results as a two-column list of type proofs, each with its style label, copy and save. */
+:root {
+  --bg: #f4f5fa;
+  --surface: #ffffff;
+  --ink: #15172b;
+  --muted: #5d6180;
+  --line: #dfe1ec;
+  --accent: #d92f57;
+  --accent-ink: #ffffff;
+  --accent-soft: #fde7ec;
+  --ok: #1f8a5b;
+  --font-display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --font-body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --font-out: "Instrument Sans", "Segoe UI Symbol", "Noto Sans Math", "Noto Sans Symbols 2", "Apple Symbols", system-ui, sans-serif;
+  --r: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101220; --surface: #181b2e; --ink: #eceefa; --muted: #9a9ebd;
+    --line: #2a2e48; --accent: #ff5c80; --accent-ink: #1a0a10; --accent-soft: #3a1b26; --ok: #4ccf93;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101220; --surface: #181b2e; --ink: #eceefa; --muted: #9a9ebd;
+  --line: #2a2e48; --accent: #ff5c80; --accent-ink: #1a0a10; --accent-soft: #3a1b26; --ok: #4ccf93;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 16px; }
+a { color: var(--accent); }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+header.top { padding-block: 18px 6px; }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.brand { font-family: var(--font-display); font-weight: 800; font-size: 20px; letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; }
+.brand b { color: var(--accent); font-family: var(--font-out); font-weight: 400; }
+.top nav { display: flex; gap: 16px; font-size: 14px; }
+.top nav a { color: var(--muted); text-decoration: none; }
+.top nav a:hover { color: var(--ink); }
+
+.hero { padding-block: 28px 18px; }
+.hero h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(30px, 6vw, 56px); line-height: 1.02; letter-spacing: -0.03em; margin: 0 0 10px; text-wrap: balance; max-width: 18ch; }
+.hero h1 span { font-family: var(--font-out); font-weight: 400; color: var(--accent); letter-spacing: 0; }
+.hero p { margin: 0; color: var(--muted); max-width: 60ch; font-size: 16px; }
+
+.press { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 12px; border-bottom: 1px solid transparent; }
+.press.stuck { border-bottom-color: var(--line); }
+.field { display: flex; gap: 8px; align-items: stretch; background: var(--surface); border: 2px solid var(--ink); border-radius: var(--r); padding: 6px; box-shadow: 4px 4px 0 var(--accent); }
+.field textarea { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ink); font: 500 20px/1.35 var(--font-body); padding: 8px 10px; resize: none; height: 46px; outline: none; }
+.field textarea::placeholder { color: var(--muted); }
+.field .icon-btn { border: 0; background: transparent; color: var(--muted); padding: 0 10px; border-radius: 10px; font-size: 13px; font-family: var(--font-mono); }
+.field .icon-btn:hover { background: var(--accent-soft); color: var(--ink); }
+.meta { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 8px; font-size: 12px; color: var(--muted); font-family: var(--font-mono); }
+.symbols { display: flex; gap: 4px; flex-wrap: wrap; }
+.symbols button { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; min-width: 30px; height: 28px; padding: 0 6px; font-family: var(--font-out); font-size: 14px; }
+.symbols button:hover { border-color: var(--accent); }
+
+.controls { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding-block: 14px 10px; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { border: 1px solid var(--line); background: var(--surface); padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 500; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip .n { font-family: var(--font-mono); font-size: 11px; opacity: .65; margin-left: 4px; }
+.search { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 7px 14px; font: 14px var(--font-body); width: 220px; max-width: 100%; }
+
+.list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 760px) { .list { grid-template-columns: minmax(0, 1fr); } }
+.row { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 10px 10px 10px 14px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; transition: border-color .15s; }
+.row:hover { border-color: var(--muted); }
+.row .label { grid-column: 1 / -1; font-family: var(--font-mono); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; display: flex; gap: 8px; }
+.row .label i { font-style: normal; color: var(--accent); }
+.row .out { font-family: var(--font-out); font-size: 21px; line-height: 1.4; overflow-wrap: anywhere; min-width: 0; cursor: copy; user-select: all; }
+.row .acts { display: flex; gap: 6px; align-items: center; }
+.btn-copy { border: 0; background: var(--accent); color: var(--accent-ink); font-weight: 600; font-size: 13px; padding: 8px 14px; border-radius: 10px; min-width: 74px; }
+.btn-copy.done { background: var(--ok); }
+.btn-fav { border: 1px solid var(--line); background: transparent; width: 36px; height: 34px; border-radius: 10px; font-size: 16px; color: var(--muted); }
+.btn-fav[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
+
+.more { display: flex; justify-content: center; padding-block: 22px 8px; }
+.btn-more { border: 2px solid var(--ink); background: var(--surface); padding: 11px 26px; border-radius: 12px; font-weight: 600; box-shadow: 3px 3px 0 var(--ink); }
+.btn-more:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+.empty { color: var(--muted); padding: 30px 0; text-align: center; grid-column: 1 / -1; }
+
+section.info { padding-block: 44px 20px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; }
+@media (max-width: 760px) { section.info { grid-template-columns: minmax(0, 1fr); } }
+.info h2 { font-family: var(--font-display); font-size: 26px; letter-spacing: -0.02em; margin: 0 0 12px; text-wrap: balance; }
+.info p, .info li { color: var(--muted); max-width: 62ch; }
+.info ol { padding-left: 20px; margin: 0; display: grid; gap: 6px; }
+details { border-top: 1px solid var(--line); padding-block: 12px; }
+details summary { cursor: pointer; font-weight: 600; }
+details p { margin: 8px 0 0; }
+code { font-family: var(--font-mono); font-size: 12.5px; background: var(--accent-soft); padding: 1px 5px; border-radius: 5px; color: var(--ink); }
+footer { padding-block: 26px 40px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); margin-top: 20px; }
+
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-size: 14px; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; max-width: calc(100% - 32px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><b>𝓕</b> Fancy Text Studio</div>
+    <nav><a href="#styles">Styles</a><a href="#how">How it works</a><a href="#faq">FAQ</a></nav>
+  </div>
+</header>
+
+<div class="wrap hero">
+  <h1>Turn plain text into <span>𝓯𝓪𝓷𝓬𝔂</span> text you can paste anywhere</h1>
+  <p>Type once and get 60+ font styles plus decorated names for Instagram bios, Free Fire and PUBG nicknames, WhatsApp, TikTok and Discord. Tap any result to copy it.</p>
+</div>
+
+<div class="press" id="press">
+  <div class="wrap">
+    <div class="field">
+      <textarea id="input" rows="1" aria-label="Your text" placeholder="Type your name or text…" maxlength="300">Stylish Name</textarea>
+      <button class="icon-btn" id="clear" type="button" title="Clear text">clear</button>
+    </div>
+    <div class="meta">
+      <div class="symbols" id="symbols" aria-label="Insert a symbol"></div>
+      <span id="count">12 chars</span>
+    </div>
+  </div>
+</div>
+
+<main class="wrap" id="styles">
+  <div class="controls">
+    <div class="chips" id="chips" role="group" aria-label="Filter styles"></div>
+    <input class="search" id="search" type="search" placeholder="Find a style (e.g. bold)" aria-label="Find a style">
+  </div>
+  <div class="list" id="list" aria-live="polite"></div>
+  <div class="more"><button class="btn-more" id="more" type="button">Load more styles</button></div>
+
+  <section class="info" id="how">
+    <div>
+      <h2>How fancy text works</h2>
+      <p>These are not fonts. Each letter is swapped for a different Unicode character that looks styled, so the result stays fancy wherever you paste it.</p>
+      <ol>
+        <li>Type your text in the box above.</li>
+        <li>Browse the styles, or filter by Bold, Cursive, Cool or Decorated.</li>
+        <li>Press <strong>Copy</strong> and paste it into your bio, nickname or message.</li>
+        <li>Press ☆ to save a style to Favorites on this device.</li>
+      </ol>
+      <p>Most bold, italic and script letters come from the <code>Mathematical Alphanumeric Symbols</code> block, <code>U+1D400–U+1D7FF</code>. Circled letters come from <code>Enclosed Alphanumerics</code>, <code>U+2460–U+24FF</code>.</p>
+    </div>
+    <div id="faq">
+      <h2>Questions</h2>
+      <details open><summary>Will it work on Instagram, Free Fire and WhatsApp?</summary><p>Yes, for most styles. Instagram, WhatsApp, TikTok and Discord show nearly all of them. Games like Free Fire and PUBG limit name length and block some symbols, so pick a shorter style if a name is rejected.</p></details>
+      <details><summary>Why do some letters show as boxes?</summary><p>The device viewing the text has no font for that character. Older Android phones miss some rare symbols. Bold, italic and script styles are the safest choice.</p></details>
+      <details><summary>Why are some letters left normal?</summary><p>Unicode does not have every letter in every style. Small caps has no styled "x", for example, so the plain letter is kept.</p></details>
+      <details><summary>Can screen readers read fancy text?</summary><p>Often not well. Screen readers may spell out symbol names. Keep important information in plain text.</p></details>
+      <details><summary>Is my text sent anywhere?</summary><p>No. Everything is converted inside your browser.</p></details>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap">Fancy Text Studio · Unicode text styles, converted in your browser.</div></footer>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+  const UP = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', LO = 'abcdefghijklmnopqrstuvwxyz', DG = '0123456789';
+  const cp = n => String.fromCodePoint(n);
+  const each = f => t => Array.from(t).map(f).join('');
+
+  // Mathematical alphanumeric ranges, with the letters Unicode placed elsewhere
+  function math(u, l, d, exc = {}) {
+    return each(ch => {
+      if (exc[ch]) return exc[ch];
+      let i = UP.indexOf(ch); if (i >= 0 && u) return cp(u + i);
+      i = LO.indexOf(ch); if (i >= 0 && l) return cp(l + i);
+      i = DG.indexOf(ch); if (i >= 0 && d) return cp(d + i);
+      return ch;
+    });
+  }
+  // Lookup alphabets: 26 space-separated glyphs, applied to both cases
+  function table(lower, upper, digits) {
+    const L = lower.split(' '), U = upper ? upper.split(' ') : L, D = digits ? digits.split(' ') : null;
+    return each(ch => {
+      let i = LO.indexOf(ch); if (i >= 0) return L[i];
+      i = UP.indexOf(ch); if (i >= 0) return U[i];
+      i = DG.indexOf(ch); if (i >= 0 && D) return D[i];
+      return ch;
+    });
+  }
+  const combine = mark => each(ch => ch === ' ' || ch === '\n' ? ch : ch + mark);
+  const between = sep => t => Array.from(t).join(sep);
+
+  const scriptExc = { B: 'ℬ', E: 'ℰ', F: 'ℱ', H: 'ℋ', I: 'ℐ', L: 'ℒ', M: 'ℳ', R: 'ℛ', e: 'ℯ', g: 'ℊ', o: 'ℴ' };
+  const frakExc = { C: 'ℭ', H: 'ℌ', I: 'ℑ', R: 'ℜ', Z: 'ℨ' };
+  const dblExc = { C: 'ℂ', H: 'ℍ', N: 'ℕ', P: 'ℙ', Q: 'ℚ', R: 'ℝ', Z: 'ℤ' };
+
+  const circled = each(ch => {
+    let i = UP.indexOf(ch); if (i >= 0) return cp(0x24B6 + i);
+    i = LO.indexOf(ch); if (i >= 0) return cp(0x24D0 + i);
+    if (ch === '0') return '⓪'; i = DG.indexOf(ch); if (i > 0) return cp(0x2460 + i - 1);
+    return ch;
+  });
+  const enclosed = (base, dig) => each(ch => {
+    const i = UP.indexOf(ch.toUpperCase());
+    if (i >= 0 && /[a-z]/i.test(ch)) return cp(base + i);
+    const d = DG.indexOf(ch); if (d >= 0 && dig) return dig(d);
+    return ch;
+  });
+  const fullwidth = each(ch => {
+    const c = ch.codePointAt(0);
+    if (c === 32) return '　';
+    if (c > 32 && c < 127) return cp(c + 0xFEE0);
+    return ch;
+  });
+  const parens = each(ch => {
+    let i = LO.indexOf(ch); if (i >= 0) return cp(0x249C + i);
+    i = UP.indexOf(ch); if (i >= 0) return cp(0x1F110 + i);
+    i = DG.indexOf(ch); if (i > 0) return cp(0x2474 + i - 1);
+    return ch;
+  });
+  const regional = t => Array.from(t).map(ch => {
+    const i = UP.indexOf(ch.toUpperCase());
+    return i >= 0 && /[a-z]/i.test(ch) ? cp(0x1F1E6 + i) : ch;
+  }).join('​');
+
+  const flipMap = table(
+    'ɐ q ɔ p ǝ ɟ ƃ ɥ ᴉ ɾ ʞ l ɯ u o d b ɹ s ʇ n ʌ ʍ x ʎ z',
+    '∀ ᗺ Ɔ ᗡ Ǝ Ⅎ ⅁ H I ſ ꓘ ˥ W N O Ԁ Ό ᴚ S ⊥ ∩ Λ M X ⅄ Z',
+    '0 Ɩ ᄅ Ɛ ㄣ ϛ 9 ㄥ 8 6');
+  const punctFlip = { '.': '˙', ',': "'", '?': '¿', '!': '¡', "'": ',', '(': ')', ')': '(', '[': ']', ']': '[', '{': '}', '}': '{', '<': '>', '>': '<', '&': '⅋', '_': '‾' };
+  const upsideDown = t => Array.from(flipMap(t)).map(c => punctFlip[c] || c).reverse().join('');
+  const mirror = t => Array.from(table('ɒ d ɔ b ɘ ʇ ϱ ʜ i į ʞ l m n o q p ɿ ƨ Ɉ υ v w x γ z', 'A ᙠ Ɔ ᗡ Ǝ ꟻ Ꭾ H I Ⴑ ꓘ ⅃ M И O ꟼ Ọ Я Ƨ T U V W X Y Z')(t)).reverse().join('');
+
+  // Seeded zalgo so a text keeps the same glitch while you browse
+  const ZUP = ['̍','̎','̄','̅','̿','̑','̆','̐','͒','͗','͑','̇','̈','̊','͂','̓','̈́','͊','͋','͌','̃','̂','̌','͐','̀','́','̋','̏','̒','̓','̔','̽'];
+  const ZDN = ['̖','̗','̘','̙','̜','̝','̞','̟','̠','̤','̥','̦','̩','̪','̫','̬','̭','̮','̯','̰','̱','̲','̳','̹','̺','̻','̼','ͅ','͇','͈','͉','͍'];
+  function rng(seed) { let s = seed >>> 0 || 1; return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296; }
+  const hash = t => Array.from(t).reduce((h, c) => (h * 31 + c.codePointAt(0)) >>> 0, 7);
+  const zalgo = n => t => { const r = rng(hash(t) + n); return Array.from(t).map(ch => {
+    if (ch === ' ') return ch; let s = ch;
+    for (let k = 0; k < n; k++) s += ZUP[Math.floor(r() * ZUP.length)] + ZDN[Math.floor(r() * ZDN.length)];
+    return s; }).join(''); };
+
+  const F = {
+    bold: math(0x1D400, 0x1D41A, 0x1D7CE),
+    italic: math(0x1D434, 0x1D44E, 0, { h: 'ℎ' }),
+    boldItalic: math(0x1D468, 0x1D482),
+    script: math(0x1D49C, 0x1D4B6, 0, scriptExc),
+    boldScript: math(0x1D4D0, 0x1D4EA, 0x1D7CE),
+    fraktur: math(0x1D504, 0x1D51E, 0, frakExc),
+    boldFraktur: math(0x1D56C, 0x1D586, 0x1D7CE),
+    double: math(0x1D538, 0x1D552, 0x1D7D8, dblExc),
+    sans: math(0x1D5A0, 0x1D5BA, 0x1D7E2),
+    sansBold: math(0x1D5D4, 0x1D5EE, 0x1D7EC),
+    sansItalic: math(0x1D608, 0x1D622),
+    sansBoldItalic: math(0x1D63C, 0x1D656, 0x1D7EC),
+    mono: math(0x1D670, 0x1D68A, 0x1D7F6),
+    smallCaps: table('ᴀ ʙ ᴄ ᴅ ᴇ ꜰ ɢ ʜ ɪ ᴊ ᴋ ʟ ᴍ ɴ ᴏ ᴘ ǫ ʀ s ᴛ ᴜ ᴠ ᴡ x ʏ ᴢ'),
+  };
+
+  // [name, category, fn]
+  const BASE = [
+    ['Bold', 'bold', F.bold],
+    ['Bold Sans', 'bold', F.sansBold],
+    ['Bold Italic', 'bold', F.boldItalic],
+    ['Bold Sans Italic', 'bold', F.sansBoldItalic],
+    ['Italic', 'cursive', F.italic],
+    ['Sans Italic', 'cursive', F.sansItalic],
+    ['Script', 'cursive', F.script],
+    ['Bold Script', 'cursive', F.boldScript],
+    ['Gothic', 'cool', F.fraktur],
+    ['Bold Gothic', 'cool', F.boldFraktur],
+    ['Double Struck', 'cool', F.double],
+    ['Sans', 'cool', F.sans],
+    ['Monospace', 'cool', F.mono],
+    ['Small Caps', 'cool', F.smallCaps],
+    ['Wide Aesthetic', 'cool', fullwidth],
+    ['Spaced', 'cool', between(' ')],
+    ['Bubbles', 'cool', circled],
+    ['Black Bubbles', 'cool', enclosed(0x1F150, d => d === 0 ? '⓿' : cp(0x278A + d - 1))],
+    ['Squares', 'cool', enclosed(0x1F130)],
+    ['Black Squares', 'cool', enclosed(0x1F170)],
+    ['Parenthesized', 'cool', parens],
+    ['Regional Letters', 'cool', regional],
+    ['Superscript', 'cool', table('ᵃ ᵇ ᶜ ᵈ ᵉ ᶠ ᵍ ʰ ⁱ ʲ ᵏ ˡ ᵐ ⁿ ᵒ ᵖ ᑫ ʳ ˢ ᵗ ᵘ ᵛ ʷ ˣ ʸ ᶻ', 'ᴬ ᴮ ᶜ ᴰ ᴱ ᶠ ᴳ ᴴ ᴵ ᴶ ᴷ ᴸ ᴹ ᴺ ᴼ ᴾ Q ᴿ ˢ ᵀ ᵁ ⱽ ᵂ ˣ ʸ ᶻ', '⁰ ¹ ² ³ ⁴ ⁵ ⁶ ⁷ ⁸ ⁹')],
+    ['Subscript', 'cool', table('ₐ ᵦ c d ₑ f g ₕ ᵢ ⱼ ₖ ₗ ₘ ₙ ₒ ₚ q ᵣ ₛ ₜ ᵤ ᵥ w ₓ ᵧ z', null, '₀ ₁ ₂ ₃ ₄ ₅ ₆ ₇ ₈ ₉')],
+    ['Upside Down', 'cool', upsideDown],
+    ['Mirror', 'cool', mirror],
+    ['Curvy', 'cool', table('α Ⴆ ƈ ԃ ҽ ϝ ɠ ԋ ι ʝ ƙ ʅ ɱ ɳ σ ρ ϙ ɾ ʂ ƚ υ ʋ ɯ x ყ ȥ')],
+    ['Currency', 'cool', table('₳ ฿ ₵ Đ Ɇ ₣ ₲ Ⱨ ł J ₭ Ⱡ ₥ ₦ Ø ₱ Q Ɽ ₴ ₮ Ʉ V ₩ Ӿ Ɏ Ⱬ')],
+    ['Thai Style', 'cool', table('ค ๒ ς ๔ є Ŧ ﻮ ђ เ ן к ɭ ๓ ภ ๏ ק ợ г ร Շ ย ש ฬ א ץ չ')],
+    ['Asian Style', 'cool', table('卂 乃 匚 ᗪ 乇 千 Ꮆ 卄 丨 ﾌ Ҝ ㄥ 爪 几 ㄖ 卩 Ɋ 尺 丂 ㄒ ㄩ ᐯ 山 乂 ㄚ 乙')],
+    ['Katakana Style', 'cool', table('ﾑ 乃 ᄃ り 乇 ｷ ム ん ﾉ ﾌ ズ ﾚ ﾶ 刀 の ｱ ゐ 尺 丂 ｲ ひ √ W ﾒ ﾘ 乙')],
+    ['Yi Style', 'cool', table('ꍏ ꌃ ꉓ ꀸ ꍟ ꎇ ꁅ ꃅ ꀤ ꀭ ꀘ ꒒ ꂵ ꈤ ꂦ ꉣ ꆰ ꋪ ꌗ ꓄ ꀎ ꃴ ꅏ ꊼ ꌩ ꁴ')],
+    ['Cherokee Style', 'cool', table('Ꭿ Ᏸ Ꮳ Ꭰ Ꭼ Ꮀ Ꮆ Ꮋ Ꭵ Ꮰ Ꮶ Ꮮ Ꮇ Ꮑ Ꮎ Ꮲ Ꭴ Ꮢ Ꮥ Ꮦ Ꮼ Ꮙ Ꮗ Ꮂ Ꭹ Ꮓ')],
+    ['Canadian Style', 'cool', table('ᗩ ᗷ ᑕ ᗪ E ᖴ G ᕼ I ᒍ K ᒪ ᗰ ᑎ O ᑭ ᑫ ᖇ ᔕ T ᑌ ᐯ ᗯ ᙭ Y ᘔ')],
+    ['Ethiopic Style', 'cool', table('ል ጌ ር ዕ ቿ ቻ ኗ ዘ ጎ ጋ ጕ ረ ጠ ክ ዐ የ ዒ ዪ ነ ፕ ሁ ሀ ሠ ሸ ሃ ጊ')],
+    ['Faux Cyrillic', 'cool', table('а б c д ё f g н ї j к г ѫ п ѳ p ф я ѕ т ц ѵ щ ж ч з', 'Д Б Ҁ ↁ Є F Б Н І Ј Ќ L М И Ф Р Q Я Ѕ Г Ц V Щ Ж Ч Z')],
+    ['Barred', 'cool', table('Ⱥ Ƀ Ȼ Đ Ɇ F Ǥ Ħ Ɨ Ɉ Ꝁ Ł M N Ø Ᵽ Ꝗ Ɍ S Ŧ ᵾ V W X Ɏ Ƶ')],
+    ['Strikethrough', 'lines', combine('̶')],
+    ['Underline', 'lines', combine('̲')],
+    ['Double Underline', 'lines', combine('̳')],
+    ['Slashed', 'lines', combine('̸')],
+    ['Tilde Strike', 'lines', combine('̴')],
+    ['Overline', 'lines', combine('̅')],
+    ['Cross Above', 'lines', combine('̽')],
+    ['Dotted Below', 'lines', combine('̤')],
+    ['Hearts Between', 'lines', between('♡')],
+    ['Stars Between', 'lines', between('☆')],
+    ['Sparkles', 'lines', t => '✧' + between('✧')(t) + '✧'],
+    ['Boxed Letters', 'lines', each(c => c === ' ' ? ' ' : '[' + c + ']')],
+    ['Light Glitch', 'lines', zalgo(1)],
+    ['Heavy Glitch', 'lines', zalgo(3)],
+  ];
+
+  const FRAMES = [
+    ['꧁༺ ', ' ༻꧂'], ['★彡 ', ' 彡★'], ['꧁𓊈𒆜 ', ' 𒆜𓊉꧂'], ['•´¯`•. ', ' .•´¯`•'], ['▄︻デ ', ' ══━一'],
+    ['♛ ', ' ♛'], ['ıllıllı ', ' ıllıllı'], ['°•.✿.•° ', ' °•.✿.•°'], ['【 ', ' 】'], ['『 ', ' 』'],
+    ['(っ◔◡◔)っ ♥ ', ' ♥'], ['⚡ ', ' ⚡'], ['☠ ', ' ☠'], ['✞ ', ' ✞'], ['▀▄▀▄ ', ' ▄▀▄▀'],
+    ['༺ ', ' ༻'], ['ঔৣ ', ' ঔৣ'], ['『𝓧』 ', ''], ['亗 ', ' 亗'], ['×͜× ', ''],
+    ['ᴹᴿ᭄ ', ''], ['⚔ ', ' ⚔'], ['☾ ', ' ☽'], ['♡ ', ' ♡'], ['➶➶ ', ' ➷➷'],
+    ['ꕥ ', ' ꕥ'], ['⫷ ', ' ⫸'], ['❦ ', ' ❦'], ['✰ ', ' ✰'], ['ᥫ᭡ ', ' ᥫ᭡'],
+    ['☯ ', ' ☯'], ['𓆩 ', ' 𓆪'], ['Ꭾʀᴏ乛 ', ''], ['彡 ', ' 彡'], ['⋆｡°✩ ', ' ✩°｡⋆'],
+  ];
+  const FRAME_FONTS = [F.boldScript, F.boldFraktur, F.smallCaps, F.script, F.double, F.sansBold, F.boldItalic, F.fraktur, F.mono, F.bold];
+  const FRAME_FONT_NAMES = ['Bold Script', 'Bold Gothic', 'Small Caps', 'Script', 'Double Struck', 'Bold Sans', 'Bold Italic', 'Gothic', 'Monospace', 'Bold'];
+
+  const styles = BASE.map(([name, cat, fn]) => ({ id: 'b:' + name, name, cat, fn }));
+  FRAMES.forEach(([l, r], i) => {
+    const f = i % FRAME_FONTS.length, fn = FRAME_FONTS[f];
+    styles.push({ id: 'd:' + i + ':' + f, name: 'Decorated · ' + FRAME_FONT_NAMES[f], cat: 'decorated', fn: t => l + fn(t) + r });
+  });
+  // "Load more" mixes every frame with the other fonts, in a fixed shuffled order
+  const extra = [];
+  FRAMES.forEach(([l, r], i) => FRAME_FONTS.forEach((fn, f) => {
+    if (f === i % FRAME_FONTS.length) return;
+    extra.push({ id: 'd:' + i + ':' + f, name: 'Decorated · ' + FRAME_FONT_NAMES[f], cat: 'decorated', fn: t => l + fn(t) + r });
+  }));
+  const shuf = rng(42);
+  for (let i = extra.length - 1; i > 0; i--) { const j = Math.floor(shuf() * (i + 1)); [extra[i], extra[j]] = [extra[j], extra[i]]; }
+  const byId = new Map([...styles, ...extra].map(s => [s.id, s]));
+
+  const CATS = [['all', 'All'], ['bold', 'Bold'], ['cursive', 'Cursive'], ['cool', 'Cool'], ['lines', 'Lines & Glitch'], ['decorated', 'Decorated'], ['fav', 'Favorites']];
+  const SYMBOLS = ['★', '♥', '✿', '꧁', '꧂', '彡', 'ツ', '⚡', '♛', '☯', '✞', '☠', '⚔', 'ღ', '亗', '༒', '•', '✓'];
+
+  const $ = id => document.getElementById(id);
+  const input = $('input'), list = $('list'), chips = $('chips'), search = $('search'), moreBtn = $('more');
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+  };
+  let favs = new Set(store.get('fts-favs', []));
+  let cat = 'all', loaded = 0, PAGE = 40;
+  input.value = store.get('fts-text', input.value);
+
+  function pool() {
+    const all = [...styles, ...extra.slice(0, loaded)];
+    const q = search.value.trim().toLowerCase();
+    return all.filter(s => (cat === 'all' || (cat === 'fav' ? favs.has(s.id) : s.cat === cat)) && (!q || s.name.toLowerCase().includes(q)))
+      .concat(cat === 'fav' ? extra.slice(loaded).filter(s => favs.has(s.id)) : []);
+  }
+
+  function renderChips() {
+    chips.innerHTML = '';
+    for (const [k, label] of CATS) {
+      const b = document.createElement('button');
+      b.className = 'chip'; b.type = 'button'; b.setAttribute('aria-pressed', String(k === cat));
+      const n = k === 'all' ? styles.length + loaded : k === 'fav' ? favs.size : [...styles, ...extra.slice(0, loaded)].filter(s => s.cat === k).length;
+      b.innerHTML = label + '<span class="n">' + n + '</span>';
+      b.onclick = () => { cat = k; renderChips(); render(); };
+      chips.appendChild(b);
+    }
+  }
+
+  function render() {
+    const text = input.value || 'Fancy Text';
+    const items = pool();
+    list.innerHTML = '';
+    if (!items.length) {
+      list.innerHTML = '<div class="empty">' + (cat === 'fav' ? 'No favorites yet. Press ☆ on any style to save it here.' : 'No style matches that search.') + '</div>';
+    }
+    const frag = document.createDocumentFragment();
+    items.forEach((s, i) => {
+      const row = document.createElement('div'); row.className = 'row';
+      const out = s.fn(text);
+      row.innerHTML = '<div class="label"><i>' + String(i + 1).padStart(2, '0') + '</i><span></span></div><div class="out"></div><div class="acts"><button class="btn-fav" type="button"></button><button class="btn-copy" type="button">Copy</button></div>';
+      row.querySelector('.label span').textContent = s.name;
+      const o = row.querySelector('.out'); o.textContent = out; o.title = 'Click to copy';
+      const fav = row.querySelector('.btn-fav');
+      const setFav = () => { const on = favs.has(s.id); fav.setAttribute('aria-pressed', String(on)); fav.textContent = on ? '★' : '☆'; fav.title = on ? 'Remove from favorites' : 'Save to favorites'; fav.setAttribute('aria-label', fav.title); };
+      setFav();
+      fav.onclick = () => { favs.has(s.id) ? favs.delete(s.id) : favs.add(s.id); store.set('fts-favs', [...favs]); setFav(); renderChips(); if (cat === 'fav') render(); };
+      const cb = row.querySelector('.btn-copy');
+      const doCopy = () => copy(out, cb, o);
+      cb.onclick = doCopy; o.onclick = doCopy;
+      frag.appendChild(row);
+    });
+    list.appendChild(frag);
+    moreBtn.hidden = loaded >= extra.length || cat === 'fav' || (cat !== 'all' && cat !== 'decorated');
+    moreBtn.textContent = 'Load ' + Math.min(PAGE, extra.length - loaded) + ' more decorated styles';
+  }
+
+  let toastT;
+  function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1600); }
+  function copy(text, btn, el) {
+    const ok = () => { btn.textContent = 'Copied'; btn.classList.add('done'); toast('Copied: ' + text); setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('done'); }, 1400); };
+    const fallback = () => {
+      const r = document.createRange(); r.selectNodeContents(el);
+      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      let done = false; try { done = document.execCommand('copy'); } catch {}
+      done ? ok() : toast('Text selected. Press Ctrl+C or long-press to copy.');
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, fallback); else fallback();
+  }
+
+  const symWrap = $('symbols');
+  SYMBOLS.forEach(s => { const b = document.createElement('button'); b.type = 'button'; b.textContent = s; b.title = 'Insert ' + s;
+    b.onclick = () => { const p = input.selectionStart ?? input.value.length; input.value = input.value.slice(0, p) + s + input.value.slice(input.selectionEnd ?? p); input.focus(); input.selectionStart = input.selectionEnd = p + s.length; update(); };
+    symWrap.appendChild(b); });
+
+  let raf;
+  function update() {
+    $('count').textContent = Array.from(input.value).length + ' chars';
+    store.set('fts-text', input.value);
+    cancelAnimationFrame(raf); raf = requestAnimationFrame(render);
+  }
+  input.addEventListener('input', update);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') e.preventDefault(); });
+  search.addEventListener('input', render);
+  $('clear').onclick = () => { input.value = ''; input.focus(); update(); };
+  moreBtn.onclick = () => { loaded = Math.min(extra.length, loaded + PAGE); renderChips(); render(); };
+
+  const press = $('press');
+  addEventListener('scroll', () => press.classList.toggle('stuck', press.getBoundingClientRect().top <= 0 && scrollY > 120), { passive: true });
+
+  renderChips(); update();
+})();
+</script>
+</body>
+</html>
