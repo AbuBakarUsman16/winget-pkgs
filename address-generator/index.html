@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>StreetSample Address Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: postal counter — controls on the left, a mailing label on the right, reference sections below */
+:root{
+  --bg:#f1f4f9; --surface:#ffffff; --label:#fffdf7; --ink:#15213a; --muted:#5a6681;
+  --line:#d5dce9; --accent:#234e9c; --accent-ink:#ffffff; --accent-soft:#e3eaf7; --stamp:#c2342c;
+  --ok:#1f7a4d;
+  --display:"Familjen Grotesk","Helvetica Neue",Arial,sans-serif;
+  --body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0d1320; --surface:#151d2d; --label:#1a2335; --ink:#e5eaf4; --muted:#95a2bc;
+  --line:#2a3550; --accent:#86a9ee; --accent-ink:#0d1320; --accent-soft:#1d2a45; --stamp:#ef7a70; --ok:#5cc792;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1320; --surface:#151d2d; --label:#1a2335; --ink:#e5eaf4; --muted:#95a2bc;
+  --line:#2a3550; --accent:#86a9ee; --accent-ink:#0d1320; --accent-soft:#1d2a45; --stamp:#ef7a70; --ok:#5cc792;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--body);margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:16px}
+a{color:var(--accent)}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* header */
+.top{border-bottom:1px solid var(--line);background:var(--surface)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:19px;text-decoration:none;color:var(--ink)}
+.brand svg{flex:none}
+.nav{display:flex;gap:18px;flex-wrap:wrap}
+.nav a{color:var(--muted);text-decoration:none;font-weight:500;font-size:14px}
+.nav a:hover{color:var(--ink)}
+
+/* intro */
+.intro{padding-block:36px 20px}
+.intro h1{font-size:clamp(28px,4.4vw,42px);font-weight:700;max-width:22ch}
+.intro p{color:var(--muted);max-width:62ch;margin:10px 0 0}
+
+/* tool grid */
+.tool{display:grid;grid-template-columns:320px 1fr;gap:20px;align-items:start;padding-bottom:28px}
+@media (max-width:860px){.tool{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:grid;gap:16px;min-width:0}
+.field{display:grid;gap:6px}
+.field label,.eyebrow{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label{text-transform:none;letter-spacing:0;font-size:13px;font-weight:500;color:var(--ink);text-align:center;padding:9px 4px;cursor:pointer;border-left:1px solid var(--line)}
+.seg label:first-of-type{border-left:0}
+.seg input:checked+label{background:var(--accent);color:var(--accent-ink)}
+.seg input:focus-visible+label{outline:2px solid var(--accent);outline-offset:-3px}
+.check{display:flex;align-items:center;gap:8px;font-size:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:8px;border:1px solid var(--line);background:var(--surface);padding:9px 14px;font-weight:600;font-size:14px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);padding:12px 16px;font-size:15px}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.sm{padding:6px 10px;font-size:13px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+
+/* result */
+.result{display:grid;gap:20px;min-width:0}
+.labelcard{background:var(--label);border:1px solid var(--line);border-radius:4px;padding:22px 24px;position:relative;box-shadow:0 1px 0 var(--line),0 10px 30px -18px rgba(20,33,58,.35)}
+.labelcard::before{content:"";position:absolute;inset:0 0 auto 0;height:6px;background:repeating-linear-gradient(135deg,var(--stamp) 0 14px,transparent 14px 22px,var(--accent) 22px 36px,transparent 36px 44px);border-radius:4px 4px 0 0;opacity:.85}
+.lc-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.stamp{border:2px solid var(--stamp);color:var(--stamp);font:600 11px/1.2 var(--mono);letter-spacing:.08em;padding:6px 8px;border-radius:3px;transform:rotate(-3deg);text-transform:uppercase;text-align:center}
+.addr{font:500 clamp(17px,2.3vw,21px)/1.5 var(--mono);margin:14px 0 6px;word-break:break-word}
+.postnet{color:var(--ink);height:22px;max-width:100%;display:block;margin-top:8px}
+.lc-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+
+.details{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.details h2{font-size:16px;padding:14px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:560px){.kv{grid-template-columns:1fr}}
+.kv div{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 18px;border-bottom:1px solid var(--line);min-width:0}
+.kv dt{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.kv dd{margin:2px 0 0;font-family:var(--mono);font-size:14px;word-break:break-all}
+.kv .copy{flex:none;border:0;background:transparent;color:var(--muted);cursor:pointer;padding:6px;border-radius:6px}
+.kv .copy:hover{color:var(--accent);background:var(--accent-soft)}
+
+/* history */
+.history{display:grid;gap:6px}
+.history button{text-align:left;border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:7px 10px;font:12.5px/1.4 var(--mono);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.history button:hover{border-color:var(--accent)}
+.empty{color:var(--muted);font-size:13px}
+
+/* sections */
+section.block{padding-block:36px;border-top:1px solid var(--line)}
+section.block>.wrap>h2{font-size:26px;margin-bottom:6px}
+section.block>.wrap>p.lede{color:var(--muted);margin:0 0 18px;max-width:62ch}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--bg)}
+td.mono{font-family:var(--mono)}
+.states{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.states button{display:flex;gap:10px;align-items:center;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:9px 10px;cursor:pointer;text-align:left;font-size:14px}
+.states button:hover{border-color:var(--accent);background:var(--accent-soft)}
+.states b{font:600 12px var(--mono);color:var(--accent);min-width:2.2em}
+.faq{display:grid;gap:8px;max-width:820px}
+.faq details{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+.faq summary{cursor:pointer;font-weight:600}
+.faq p{color:var(--muted);margin:8px 0 2px}
+.note{border-left:3px solid var(--stamp);padding:10px 14px;background:var(--surface);border-radius:0 8px 8px 0;max-width:820px;color:var(--muted);font-size:14px}
+footer{border-top:1px solid var(--line);padding-block:24px;color:var(--muted);font-size:13px}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:14px;font-weight:500;opacity:0;pointer-events:none;transition:.2s}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#generator">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="2" y="6" width="24" height="16" rx="2" fill="none" stroke="var(--accent)" stroke-width="2"/><path d="M3 8l11 8 11-8" fill="none" stroke="var(--accent)" stroke-width="2"/><circle cx="22" cy="6" r="4" fill="var(--stamp)"/></svg>
+      StreetSample
+    </a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#generator">Generator</a>
+      <a href="#bulk">Bulk</a>
+      <a href="#states">States</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap intro" id="generator">
+    <h1>US Address Generator for testing forms</h1>
+    <p>Pick a state and city, then generate a properly formatted US address with ZIP code, area-code phone number and a made-up profile. Use it for QA, demos, screenshots and form validation.</p>
+  </div>
+
+  <div class="wrap tool">
+    <form class="panel" id="controls" autocomplete="off">
+      <div class="field">
+        <label for="state">State</label>
+        <select id="state"></select>
+      </div>
+      <div class="field">
+        <label for="city">City</label>
+        <select id="city"></select>
+      </div>
+      <div class="field">
+        <span class="eyebrow" id="hn-label">House number</span>
+        <div class="seg" role="radiogroup" aria-labelledby="hn-label">
+          <input type="radio" name="hn" id="hn-any" value="any" checked><label for="hn-any">Any</label>
+          <input type="radio" name="hn" id="hn-short" value="short"><label for="hn-short">1–3 digits</label>
+          <input type="radio" name="hn" id="hn-long" value="long"><label for="hn-long">4–5 digits</label>
+        </div>
+      </div>
+      <label class="check" for="unit"><input type="checkbox" id="unit"> Include apartment / suite</label>
+      <label class="check" for="zip4"><input type="checkbox" id="zip4" checked> Show ZIP+4</label>
+      <button class="btn primary" type="submit">Generate address</button>
+      <div class="field">
+        <span class="eyebrow">Recent</span>
+        <div class="history" id="history"><span class="empty">Generated addresses appear here.</span></div>
+      </div>
+    </form>
+
+    <div class="result">
+      <article class="labelcard" aria-live="polite">
+        <div class="lc-head">
+          <div>
+            <div class="eyebrow">Ship to</div>
+          </div>
+          <div class="stamp" id="stamp">Sample<br>Data</div>
+        </div>
+        <div class="addr" id="addr"></div>
+        <svg class="postnet" id="postnet" role="img" aria-label="POSTNET barcode for the ZIP code"></svg>
+        <div class="lc-actions">
+          <button class="btn sm" type="button" data-copy="full">Copy address</button>
+          <button class="btn sm" type="button" data-copy="json">Copy as JSON</button>
+          <a class="btn sm" id="osm" href="#" target="_blank" rel="noopener">OpenStreetMap ↗</a>
+          <a class="btn sm" id="gmap" href="#" target="_blank" rel="noopener">Google Maps ↗</a>
+        </div>
+      </article>
+
+      <section class="details" aria-labelledby="addr-h">
+        <h2 id="addr-h">Address fields</h2>
+        <dl class="kv" id="addrFields"></dl>
+      </section>
+
+      <section class="details" aria-labelledby="prof-h">
+        <h2 id="prof-h">Fake profile <button class="btn sm" type="button" id="reprofile">New profile, same address</button></h2>
+        <dl class="kv" id="profFields"></dl>
+      </section>
+    </div>
+  </div>
+
+  <section class="block" id="bulk">
+    <div class="wrap">
+      <h2>Bulk generate</h2>
+      <p class="lede">Make a batch using the state, city and house-number settings above, then copy it as CSV or JSON for a spreadsheet or seed file.</p>
+      <div class="row" style="margin-bottom:12px;align-items:center">
+        <label for="bulkCount" class="eyebrow">Rows</label>
+        <select id="bulkCount" style="width:auto">
+          <option>5</option><option selected>10</option><option>25</option><option>50</option>
+        </select>
+        <button class="btn" type="button" id="bulkGo">Generate batch</button>
+        <button class="btn" type="button" id="bulkCsv">Copy CSV</button>
+        <button class="btn" type="button" id="bulkJson">Copy JSON</button>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Name</th><th>Street</th><th>City</th><th>State</th><th>ZIP</th><th>Phone</th><th>Email</th></tr></thead>
+          <tbody id="bulkBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="states">
+    <div class="wrap">
+      <h2>Browse by state</h2>
+      <p class="lede">All 50 states plus Washington, DC. Choose one to generate an address there.</p>
+      <div class="states" id="stateGrid"></div>
+    </div>
+  </section>
+
+  <section class="block" id="faq">
+    <div class="wrap">
+      <h2>FAQ</h2>
+      <p class="lede">How the data is put together and what it should be used for.</p>
+      <div class="faq">
+        <details open><summary>Where do the addresses come from?</summary>
+          <p>City names, ZIP ranges and area codes are real. The house number and street name are combined at random from common US street names, so a generated street may or may not exist in that city.</p></details>
+        <details><summary>Are the phone numbers real?</summary>
+          <p>No. Every number uses the 555-0100 to 555-0199 block, which is reserved for fictional use, behind the city's real area code.</p></details>
+        <details><summary>Are the email addresses real?</summary>
+          <p>No. They all use example.com, a domain reserved for documentation, so test emails never reach a real inbox.</p></details>
+        <details><summary>Why is there no SSN field?</summary>
+          <p>Fake Social Security numbers are a common tool for identity fraud, and form testing works just as well with a clearly fake placeholder. Use 000-00-0000 if your form needs one.</p></details>
+        <details><summary>What is the barcode on the label?</summary>
+          <p>It is the old USPS POSTNET code for the ZIP (or ZIP+4), including its check digit, drawn as tall and short bars.</p></details>
+        <details><summary>Can I use these addresses for shipping or sign-ups?</summary>
+          <p>No. This tool is for software testing and demos only. Do not use it for fraud, impersonation, or to get around verification on real services.</p></details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="note">StreetSample produces sample data for testing. Names, phone numbers, emails and birthdays are invented. It does not check whether mail can be delivered to an address.</div>
+    <p style="margin-top:14px">StreetSample · built for QA and demo work</p>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+// State | Name | City,zipFrom,zipTo,areaCode ; ...
+const RAW = `AL|Alabama|Birmingham,35203,35244,205;Montgomery,36104,36117,334;Mobile,36602,36695,251;Huntsville,35801,35816,256
+AK|Alaska|Anchorage,99501,99518,907;Fairbanks,99701,99709,907;Juneau,99801,99801,907
+AZ|Arizona|Phoenix,85003,85054,602;Tucson,85701,85750,520;Mesa,85201,85215,480;Flagstaff,86001,86004,928
+AR|Arkansas|Little Rock,72201,72227,501;Fayetteville,72701,72704,479;Fort Smith,72901,72916,479
+CA|California|Los Angeles,90001,90068,213;San Francisco,94102,94134,415;San Diego,92101,92131,619;Sacramento,95814,95838,916;Fresno,93701,93730,559
+CO|Colorado|Denver,80202,80239,303;Colorado Springs,80903,80920,719;Boulder,80301,80305,303
+CT|Connecticut|Hartford,06103,06120,860;New Haven,06510,06519,203;Stamford,06901,06907,203
+DE|Delaware|Wilmington,19801,19810,302;Dover,19901,19904,302
+DC|District of Columbia|Washington,20001,20020,202
+FL|Florida|Miami,33125,33150,305;Orlando,32801,32839,407;Tampa,33602,33629,813;Jacksonville,32202,32256,904
+GA|Georgia|Atlanta,30303,30342,404;Savannah,31401,31419,912;Augusta,30901,30909,706
+HI|Hawaii|Honolulu,96813,96826,808;Hilo,96720,96720,808
+ID|Idaho|Boise,83702,83716,208;Idaho Falls,83401,83406,208
+IL|Illinois|Chicago,60601,60661,312;Springfield,62701,62711,217;Peoria,61602,61615,309
+IN|Indiana|Indianapolis,46201,46260,317;Fort Wayne,46802,46825,260;South Bend,46601,46637,574
+IA|Iowa|Des Moines,50309,50321,515;Cedar Rapids,52401,52411,319;Iowa City,52240,52246,319
+KS|Kansas|Wichita,67202,67230,316;Topeka,66603,66619,785;Overland Park,66204,66221,913
+KY|Kentucky|Louisville,40202,40245,502;Lexington,40502,40517,859
+LA|Louisiana|New Orleans,70112,70131,504;Baton Rouge,70801,70820,225;Shreveport,71101,71119,318
+ME|Maine|Portland,04101,04103,207;Bangor,04401,04401,207
+MD|Maryland|Baltimore,21201,21231,410;Annapolis,21401,21403,410;Rockville,20850,20853,301
+MA|Massachusetts|Boston,02108,02136,617;Worcester,01602,01610,508;Springfield,01103,01109,413
+MI|Michigan|Detroit,48201,48235,313;Grand Rapids,49503,49525,616;Lansing,48906,48933,517;Ann Arbor,48103,48109,734
+MN|Minnesota|Minneapolis,55401,55419,612;Saint Paul,55101,55119,651;Duluth,55802,55812,218
+MS|Mississippi|Jackson,39201,39216,601;Gulfport,39501,39507,228
+MO|Missouri|Kansas City,64105,64138,816;St. Louis,63101,63139,314;Springfield,65802,65810,417
+MT|Montana|Billings,59101,59106,406;Missoula,59801,59808,406;Helena,59601,59602,406
+NE|Nebraska|Omaha,68102,68164,402;Lincoln,68502,68528,402
+NV|Nevada|Las Vegas,89101,89149,702;Reno,89501,89523,775
+NH|New Hampshire|Manchester,03101,03104,603;Concord,03301,03303,603
+NJ|New Jersey|Newark,07102,07114,973;Jersey City,07302,07310,201;Trenton,08608,08611,609
+NM|New Mexico|Albuquerque,87102,87123,505;Santa Fe,87501,87508,505;Las Cruces,88001,88012,575
+NY|New York|New York,10001,10040,212;Brooklyn,11201,11239,718;Buffalo,14201,14222,716;Albany,12202,12210,518;Rochester,14604,14626,585
+NC|North Carolina|Charlotte,28202,28277,704;Raleigh,27601,27617,919;Durham,27701,27713,919;Asheville,28801,28806,828
+ND|North Dakota|Fargo,58102,58104,701;Bismarck,58501,58504,701
+OH|Ohio|Columbus,43201,43235,614;Cleveland,44102,44135,216;Cincinnati,45202,45246,513;Toledo,43604,43623,419
+OK|Oklahoma|Oklahoma City,73102,73159,405;Tulsa,74103,74137,918
+OR|Oregon|Portland,97201,97236,503;Eugene,97401,97408,541;Salem,97301,97306,503
+PA|Pennsylvania|Philadelphia,19102,19154,215;Pittsburgh,15201,15237,412;Harrisburg,17101,17113,717
+RI|Rhode Island|Providence,02903,02909,401;Warwick,02886,02889,401
+SC|South Carolina|Columbia,29201,29229,803;Charleston,29401,29414,843;Greenville,29601,29617,864
+SD|South Dakota|Sioux Falls,57103,57110,605;Rapid City,57701,57703,605
+TN|Tennessee|Nashville,37203,37221,615;Memphis,38103,38141,901;Knoxville,37902,37938,865;Chattanooga,37402,37421,423
+TX|Texas|Houston,77002,77099,713;Dallas,75201,75254,214;Austin,78701,78759,512;San Antonio,78201,78260,210;El Paso,79901,79938,915
+UT|Utah|Salt Lake City,84101,84124,801;Provo,84601,84606,801;Ogden,84401,84405,801
+VT|Vermont|Burlington,05401,05408,802;Montpelier,05602,05602,802
+VA|Virginia|Richmond,23219,23235,804;Virginia Beach,23451,23464,757;Arlington,22201,22209,703;Norfolk,23502,23518,757
+WA|Washington|Seattle,98101,98144,206;Spokane,99201,99224,509;Tacoma,98402,98422,253
+WV|West Virginia|Charleston,25301,25314,304;Morgantown,26501,26508,304
+WI|Wisconsin|Milwaukee,53202,53233,414;Madison,53703,53719,608;Green Bay,54301,54313,920
+WY|Wyoming|Cheyenne,82001,82009,307;Casper,82601,82609,307`;
+
+const STATES = RAW.split("\n").map(line=>{
+  const [code,name,cities] = line.split("|");
+  return {code,name,cities:cities.split(";").map(c=>{const [n,a,b,ac]=c.split(",");return {name:n,from:+a,to:+b,area:ac}})};
+});
+const byCode = Object.fromEntries(STATES.map(s=>[s.code,s]));
+
+const STREETS = ["Main","Oak","Maple","Cedar","Pine","Elm","Washington","Lake","Hill","Park","Sunset","Lincoln","Jackson","Franklin","Highland","Ridge","Willow","Church","Spring","Meadow","Chestnut","Walnut","Madison","Jefferson","River","Forest","Center","Cherry","Mill","Union","Dogwood","Magnolia","Hickory","Birch","Lakeview","Fairview","Prospect","Grant","Adams","Monroe","Second","Third","Fifth","Seventh","Twelfth"];
+const TYPES = ["St","Ave","Rd","Dr","Ln","Blvd","Ct","Way","Pl","Ter"];
+const DIRS = ["N","S","E","W"];
+const UNITS = ["Apt","Unit","Suite","#"];
+const FIRST_M = ["James","Michael","Robert","David","William","Daniel","Matthew","Anthony","Joshua","Andrew","Ryan","Kevin","Brian","Jason","Marcus","Luis","Carlos","Ethan","Noah","Tyler","Omar","Samuel","Henry","Caleb"];
+const FIRST_F = ["Mary","Jennifer","Linda","Sarah","Jessica","Emily","Ashley","Megan","Rachel","Laura","Nicole","Olivia","Sophia","Grace","Hannah","Maria","Ana","Aisha","Chloe","Natalie","Brooke","Lauren","Vanessa","Erin"];
+const LAST = ["Smith","Johnson","Williams","Brown","Jones","Garcia","Miller","Davis","Rodriguez","Martinez","Hernandez","Lopez","Wilson","Anderson","Thomas","Taylor","Moore","Martin","Lee","Thompson","White","Harris","Clark","Lewis","Walker","Hall","Young","Allen","King","Wright","Scott","Nguyen","Hill","Green","Baker","Adams","Nelson","Carter","Mitchell","Perez","Roberts","Turner","Phillips","Campbell","Parker","Evans","Collins","Reed"];
+const JOBS = ["Software Tester","Nurse","Accountant","Teacher","Electrician","Graphic Designer","Sales Associate","Civil Engineer","Pharmacist","Chef","Marketing Coordinator","Paralegal","Dental Hygienist","Logistics Manager","Barista","Data Analyst","Carpenter","Office Administrator"];
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const pad=(n,l)=>String(n).padStart(l,"0");
+const $=id=>document.getElementById(id);
+
+const stateSel=$("state"), citySel=$("city");
+stateSel.innerHTML = `<option value="">Any state</option>` + STATES.map(s=>`<option value="${s.code}">${s.name} (${s.code})</option>`).join("");
+function fillCities(){
+  const s = byCode[stateSel.value];
+  citySel.innerHTML = `<option value="">Any city</option>` + (s? s.cities.map((c,i)=>`<option value="${i}">${c.name}</option>`).join("") : "");
+  citySel.disabled = !s;
+}
+stateSel.addEventListener("change",()=>{fillCities();generate()});
+citySel.addEventListener("change",generate);
+
+function houseNumber(pref){
+  if(pref==="short") return rnd(1,999);
+  if(pref==="long") return Math.random()<.75 ? rnd(1000,9999) : rnd(10000,29999);
+  const r=Math.random();
+  return r<.35 ? rnd(1,999) : r<.9 ? rnd(1000,9999) : rnd(10000,24999);
+}
+
+function makeProfile(area,stateCode){
+  const g = Math.random()<.5 ? "Male" : "Female";
+  const first = pick(g==="Male"?FIRST_M:FIRST_F), last = pick(LAST);
+  const y = rnd(1955,2004), m = rnd(0,11), d = rnd(1,28);
+  const now = new Date(); let age = now.getFullYear()-y; if(now.getMonth()<m || (now.getMonth()===m && now.getDate()<d)) age--;
+  const tag = rnd(10,99);
+  return {
+    name:`${first} ${last}`, gender:g,
+    birthday:`${MONTHS[m]} ${d}, ${y}`, age,
+    phone:`(${area}) 555-01${pad(rnd(0,99),2)}`,
+    email:`${first}.${last}${tag}`.toLowerCase()+"@example.com",
+    username:(first[0]+last+tag).toLowerCase(),
+    occupation:pick(JOBS)
+  };
+}
+
+function makeRecord(){
+  const s = byCode[stateSel.value] || pick(STATES);
+  const c = (stateSel.value && citySel.value!=="") ? s.cities[+citySel.value] : pick(s.cities);
+  const pref = document.querySelector('input[name="hn"]:checked').value;
+  const dir = Math.random()<.2 ? pick(DIRS)+" " : "";
+  const street = `${houseNumber(pref)} ${dir}${pick(STREETS)} ${pick(TYPES)}`;
+  const ut = pick(UNITS);
+  const unit = $("unit").checked ? (ut==="#" ? "#" : ut+" ") + (ut==="Suite" ? rnd(100,450) : rnd(1,30)+(Math.random()<.4?pick(["A","B","C"]):"")) : "";
+  const zip = pad(rnd(c.from,c.to),5);
+  const plus4 = pad(rnd(1,9998),4);
+  return {street, unit, city:c.name, state:s.code, stateName:s.name, zip, plus4, area:c.area, profile:makeProfile(c.area,s.code)};
+}
+
+let current=null, batch=[];
+function zipText(r){return $("zip4").checked ? `${r.zip}-${r.plus4}` : r.zip}
+function fullAddress(r){return `${r.street}${r.unit?", "+r.unit:""}\n${r.city}, ${r.state} ${zipText(r)}\nUnited States`}
+
+function postnet(digits){
+  const map={0:"11000",1:"00011",2:"00101",3:"00110",4:"01001",5:"01010",6:"01100",7:"10001",8:"10010",9:"10100"};
+  const sum=[...digits].reduce((a,d)=>a+ +d,0), check=(10-sum%10)%10;
+  const bits="1"+[...digits+check].map(d=>map[d]).join("")+"1";
+  const w=2, gap=3, step=w+gap, H=22, h=9;
+  const svg=$("postnet"); svg.setAttribute("viewBox",`0 0 ${bits.length*step} ${H}`); svg.setAttribute("width",bits.length*step);
+  svg.innerHTML=[...bits].map((b,i)=>`<rect x="${i*step}" y="${b==="1"?0:H-h}" width="${w}" height="${b==="1"?H:h}" fill="currentColor"/>`).join("");
+}
+
+const ICON=`<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 11V3.5A1.5 1.5 0 0 1 4.5 2H11" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>`;
+function kv(el,rows){
+  el.innerHTML = rows.map(([k,v])=>`<div><div style="min-width:0"><dt>${k}</dt><dd>${esc(v)}</dd></div><button class="copy" type="button" aria-label="Copy ${k}" data-val="${esc(v)}">${ICON}</button></div>`).join("");
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+function render(r){
+  current=r;
+  $("addr").style.whiteSpace="pre-line";
+  $("addr").textContent = `${r.profile.name.toUpperCase()}\n${fullAddress(r).toUpperCase()}`;
+  postnet($("zip4").checked ? r.zip+r.plus4 : r.zip);
+  const q = encodeURIComponent(`${r.street}, ${r.city}, ${r.state} ${r.zip}`);
+  $("osm").href = `https://www.openstreetmap.org/search?query=${q}`;
+  $("gmap").href = `https://www.google.com/maps/search/?api=1&query=${q}`;
+  kv($("addrFields"),[["Street",r.street],["Unit",r.unit||"—"],["City",r.city],["State",`${r.stateName} (${r.state})`],["ZIP code",r.zip],["ZIP+4",`${r.zip}-${r.plus4}`],["Area code",r.area],["Country","United States"]]);
+  const p=r.profile;
+  kv($("profFields"),[["Full name",p.name],["Gender",p.gender],["Birthday",p.birthday],["Age",p.age],["Phone",p.phone],["Email",p.email],["Username",p.username],["Occupation",p.occupation]]);
+}
+
+function generate(){
+  const r = makeRecord(); render(r); pushHistory(r);
+}
+
+// history (per-viewer convenience)
+let hist=[];
+try{hist=JSON.parse(localStorage.getItem("ss-hist")||"[]")}catch(e){hist=[]}
+function drawHistory(){
+  const el=$("history");
+  if(!hist.length){el.innerHTML=`<span class="empty">Generated addresses appear here.</span>`;return}
+  el.innerHTML = hist.map((r,i)=>`<button type="button" data-h="${i}" title="${esc(r.street+", "+r.city+", "+r.state)}">${esc(r.street)}, ${esc(r.city)} ${r.state}</button>`).join("");
+}
+function pushHistory(r){
+  hist=[r,...hist].slice(0,8);
+  try{localStorage.setItem("ss-hist",JSON.stringify(hist))}catch(e){}
+  drawHistory();
+}
+$("history").addEventListener("click",e=>{const b=e.target.closest("[data-h]");if(b)render(hist[+b.dataset.h])});
+
+// copy
+const toast=$("toast"); let tt;
+function say(msg){toast.textContent=msg;toast.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>toast.classList.remove("show"),1600)}
+function copy(text,label){
+  const fallback=()=>{const t=document.createElement("textarea");t.value=text;t.style.position="fixed";t.style.opacity="0";document.body.appendChild(t);t.select();let ok=false;try{ok=document.execCommand("copy")}catch(e){}t.remove();say(ok?`Copied ${label}`:"Copy blocked here. Select the text and copy it manually.")};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(()=>say(`Copied ${label}`),fallback)}else fallback();
+}
+document.addEventListener("click",e=>{
+  const c=e.target.closest(".copy"); if(c){copy(c.dataset.val,c.getAttribute("aria-label").replace("Copy ","").toLowerCase());return}
+  const d=e.target.closest("[data-copy]"); if(d&&current){
+    if(d.dataset.copy==="full") copy(`${current.profile.name}\n${fullAddress(current)}`,"address");
+    else copy(JSON.stringify(toJSON(current),null,2),"JSON");
+  }
+});
+function toJSON(r){return {name:r.profile.name,street:r.street,unit:r.unit||null,city:r.city,state:r.state,zip:r.zip,zip4:`${r.zip}-${r.plus4}`,country:"US",phone:r.profile.phone,email:r.profile.email,gender:r.profile.gender,birthday:r.profile.birthday,occupation:r.profile.occupation}}
+
+$("controls").addEventListener("submit",e=>{e.preventDefault();generate()});
+$("zip4").addEventListener("change",()=>current&&render(current));
+$("reprofile").addEventListener("click",()=>{if(!current)return;current={...current,profile:makeProfile(current.area,current.state)};render(current);pushHistory(current)});
+document.querySelectorAll('input[name="hn"],#unit').forEach(i=>i.addEventListener("change",generate));
+
+// bulk
+function runBulk(){
+  const n=+$("bulkCount").value; batch=Array.from({length:n},makeRecord);
+  $("bulkBody").innerHTML=batch.map(r=>`<tr><td>${esc(r.profile.name)}</td><td class="mono">${esc(r.street)}${r.unit?", "+esc(r.unit):""}</td><td>${esc(r.city)}</td><td>${r.state}</td><td class="mono">${zipText(r)}</td><td class="mono">${r.profile.phone}</td><td class="mono">${r.profile.email}</td></tr>`).join("");
+}
+const csvCell=v=>/[",\n]/.test(v)?`"${String(v).replace(/"/g,'""')}"`:v;
+$("bulkGo").addEventListener("click",runBulk);
+$("bulkCsv").addEventListener("click",()=>{
+  const head=["name","street","unit","city","state","zip","phone","email"];
+  const rows=batch.map(r=>[r.profile.name,r.street,r.unit,r.city,r.state,zipText(r),r.profile.phone,r.profile.email].map(csvCell).join(","));
+  copy([head.join(","),...rows].join("\n"),`${batch.length} rows as CSV`);
+});
+$("bulkJson").addEventListener("click",()=>copy(JSON.stringify(batch.map(toJSON),null,2),`${batch.length} rows as JSON`));
+
+// state grid
+$("stateGrid").innerHTML=STATES.map(s=>`<button type="button" data-s="${s.code}"><b>${s.code}</b>${s.name}</button>`).join("");
+$("stateGrid").addEventListener("click",e=>{
+  const b=e.target.closest("[data-s]"); if(!b)return;
+  stateSel.value=b.dataset.s; fillCities(); generate();
+  $("generator").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
+});
+
+// boot: honor a #TX style anchor, otherwise start in New York
+const h=(location.hash||"").slice(1).toUpperCase();
+stateSel.value = byCode[h] ? h : "NY";
+fillCities(); drawHistory(); generate(); runBulk();
+})();
+</script>
+</body>
+</html>
