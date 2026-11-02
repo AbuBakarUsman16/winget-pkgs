@@ -1,0 +1,33 @@
+KIDS YOGA - ElevenLabs voiceover script
+Settings: Model "Eleven Multilingual v2" | Stability 40% | Similarity 75% | Style 30%
+Voice: Voice Library me search karein "child girl" / "young girl storyteller" / "cheerful kid"
+
+File 1 (intro.mp3):
+Hello friends! Welcome to kids yoga! Let's stretch like our animal friends!
+
+File 2 (pose1.mp3):
+Pose one! Cat stretch! Get on your hands and knees, and arch your back like a happy cat. Meow!
+
+File 3 (pose2.mp3):
+Pose two! Doggy stretch! Hands and feet on the mat, lift your hips up high. Woof woof!
+
+File 4 (pose3.mp3):
+Pose three! Cobra pose! Lie on your tummy, push your hands down, and lift your chest. Hiss hiss!
+
+File 5 (pose4.mp3):
+Pose four! Butterfly pose! Sit down, put your feet together, and flap your knees like wings!
+
+File 6 (pose5.mp3):
+Pose five! Frog pose! Squat down low, hands on the floor, and get ready to jump! Ribbit!
+
+File 7 (pose6.mp3):
+Pose six! Flamingo balance! Stand on one leg, open your arms wide, and stay very still.
+
+File 8 (count.mp3):
+Ten... nine... eight... seven... six... five... four... three... two... one!
+
+File 9 (greatjob.mp3):
+Great job!
+
+File 10 (outro.mp3):
+Yay! You did it! See you next time. Namaste!
