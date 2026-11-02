@@ -84,13 +84,22 @@ def animal(kind,cx,cy):
 INTRO,SEG,OUT=6,18.5,3
 DUR=int(INTRO+SEG*len(POSES)+OUT)
 aud=np.zeros(int(DUR*SR),np.float32)
-def place(text,t):
-    say(text,'k/r.wav');subprocess.run(['ffmpeg','-y','-v','error','-i','k/r.wav','-af','asetrate=22050*1.12,aresample=22050,atempo=0.93,highpass=f=120,lowpass=f=7500,equalizer=f=3000:t=q:w=1:g=3,aecho=0.8:0.6:25:0.2,acompressor=threshold=-18dB:ratio=3,volume=1.5','-ar','22050','-ac','1','k/v.wav']);w=wave.open('k/v.wav');a=np.frombuffer(w.readframes(w.getnframes()),np.int16)/32768;i=int(t*SR);a=a[:len(aud)-i];aud[i:i+len(a)]+=a*0.9;return len(a)/SR
+import os
+VO={"Hello friends! Welcome to kids yoga! Let's stretch like our animal friends!":'intro',"Great job!":'greatjob',"Yay! You did it! See you next time. Namaste!":'outro'}
+def place(text,t,clip=None):
+    clip=clip or VO.get(text);mp3=f'voices/{clip}.mp3' if clip else None
+    if mp3 and os.path.exists(mp3):
+        subprocess.run(['ffmpeg','-y','-v','error','-i',mp3,'-ar',str(SR),'-ac','1','k/v.wav'])
+    else:
+        say(text,'k/v.wav')
+    w=wave.open('k/v.wav');a=np.frombuffer(w.readframes(w.getnframes()),np.int16)/32768;i=int(t*SR);a=a[:len(aud)-i];aud[i:i+len(a)]+=a*0.9;return len(a)/SR
 place("Hello friends! Welcome to kids yoga! Let's stretch like our animal friends!",0.5)
 nums="ten nine eight seven six five four three two one".split()
 for k,(name,an,txt,_) in enumerate(POSES):
-    t0=INTRO+k*SEG;dl=place(txt,t0+0.3);assert dl<8.4,(name,dl)
-    for j in range(10):place(nums[j],t0+8+j)
+    t0=INTRO+k*SEG;dl=place(txt,t0+0.3,f'pose{k+1}');assert dl<8.4,(name,dl)
+    if os.path.exists('voices/count.mp3'):place('',t0+8,'count')
+    else:
+        for j in range(10):place(nums[j],t0+8+j)
     place("Great job!",t0+17.9)
 place("Yay! You did it! See you next time. Namaste!",DUR-OUT+0.1)
 t=np.arange(len(aud))/SR;mus=np.zeros_like(aud)
